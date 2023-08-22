@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Corpus Christi Reroute Data</title>
+  <style>
+    html,
+    body,
+    #viewDiv {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+
+  <link rel="stylesheet" href="https://js.arcgis.com/4.19/esri/themes/light/main.css">
+  <script src="https://js.arcgis.com/4.19/"></script>
+
+  <script>
+    require([
+     "esri/config",
+      "esri/Map",
+      "esri/views/MapView",
+
+      "esri/layers/TileLayer",
+      "esri/layers/FeatureLayer",
+      "esri/widgets/Legend",
+      "esri/Graphic",
+      "esri/geometry/geometryEngine",
+      "esri/layers/CSVLayer",
+
+      "esri/widgets/BasemapToggle",
+      "esri/widgets/BasemapGallery"
+
+    ], function (esriConfig,Map, MapView, FeatureLayer, TileLayer, Legend, Graphic, geometryEngine, CSVLayer) {
+
+      esriConfig.apiKey = "AAPKffde3052cf574022b35ce63f6362a24azSj_LOF71E2MiQgxFZ-I6PrqVj61_GQqdqnx97wXKk4x1U-sY9iWZQvm5QvQoW4e";
+
+      
+      const map = new Map({
+        basemap: "arcgis-navigation" // Basemap layer
+      });
+    
+      // Create view of map
+      const view = new MapView({
+          map: map,
+          center: [-97.3964, 27.8006],
+          zoom: 8.5, // scale: 72223.819286
+          container: "viewDiv",
+          constraints: {
+              snapToZoom: false
+          }
+      });
+
+      //Add a lat/long results on click
+      view.on("click", function(event) {
+      // you must overwrite default click-for-popup
+      // behavior to display your own popup
+      view.popup.autoOpenEnabled = false;
+
+      // Get the coordinates of the click on the view
+      let lat = Math.round(event.mapPoint.latitude * 1000) / 1000;
+      let lon = Math.round(event.mapPoint.longitude * 1000) / 1000;
+
+      view.popup.open({
+        // Set the popup's title to the coordinates of the location
+        title: "Reverse geocode: [" + lon + ", " + lat + "]",
+        location: event.mapPoint, // Set the location of the popup to the clicked location
+        content: "This is a point of interest"  // content displayed in the popup
+      });
+      });   
+
+      // Create pop-up detail on point
+      const popupInfo = {
+          "title": "Customer Info",
+          "content": "<b>Customer:</b> {custName}<br><b>Contract:</b> {contractNbr}<br><b>Contract Type:</b> {contractType}<br><b>Delivery Frequency:</b> {deliveryFreq}<br><b>Delivery Product:</b> {item}<br><b>Workload:</b> {Workload}<br><b>Orig Next Delv Date:</b> {nextDeliveryDate}<br><b>New Delivery Date:</b> {FirstVisit}<br>"
+        };    
+
+      // map.add(clusteredLayer);
+      view.ui.add(new Legend({ view }), "bottom-left");
+
+      const csvLayer = new CSVLayer({
+        url: "http://127.0.0.1:5000/contracts.csv",
+      })
+      
+      map.add(csvLayer);
+    });
+  </script>
+</head>
+
+<body>
+  <div id="viewDiv"></div>
+  <span id="layerToggle" class="esri-widget"> <input type="checkbox" id="completeCheckBox" checked /> Complete Data Set </span>
+  <span id="layerToggle" class="esri-widget"> <input type="checkbox" id="clusterCheckBox" checked /> Clusters </span>
+</body>
+
+</html>
