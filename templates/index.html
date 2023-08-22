@@ -31,11 +31,12 @@
       "esri/Graphic",
       "esri/geometry/geometryEngine",
       "esri/layers/CSVLayer",
+      "esri/renderers/UniqueValueRenderer",
 
       "esri/widgets/BasemapToggle",
       "esri/widgets/BasemapGallery"
 
-    ], function (esriConfig,Map, MapView, FeatureLayer, TileLayer, Legend, Graphic, geometryEngine, CSVLayer) {
+    ], function (esriConfig,Map, MapView, FeatureLayer, TileLayer, Legend, Graphic, geometryEngine, CSVLayer,UniqueValueRenderer) {
 
       esriConfig.apiKey = "AAPKffde3052cf574022b35ce63f6362a24azSj_LOF71E2MiQgxFZ-I6PrqVj61_GQqdqnx97wXKk4x1U-sY9iWZQvm5QvQoW4e";
 
@@ -53,40 +54,111 @@
           constraints: {
               snapToZoom: false
           }
-      });
-
-      //Add a lat/long results on click
-      view.on("click", function(event) {
-      // you must overwrite default click-for-popup
-      // behavior to display your own popup
-      view.popup.autoOpenEnabled = false;
-
-      // Get the coordinates of the click on the view
-      let lat = Math.round(event.mapPoint.latitude * 1000) / 1000;
-      let lon = Math.round(event.mapPoint.longitude * 1000) / 1000;
-
-      view.popup.open({
-        // Set the popup's title to the coordinates of the location
-        title: "Reverse geocode: [" + lon + ", " + lat + "]",
-        location: event.mapPoint, // Set the location of the popup to the clicked location
-        content: "This is a point of interest"  // content displayed in the popup
-      });
-      });   
+      });  
 
       // Create pop-up detail on point
       const popupInfo = {
           "title": "Customer Info",
-          "content": "<b>Customer:</b> {custName}<br><b>Contract:</b> {contractNbr}<br><b>Contract Type:</b> {contractType}<br><b>Delivery Frequency:</b> {deliveryFreq}<br><b>Delivery Product:</b> {item}<br><b>Workload:</b> {Workload}<br><b>Orig Next Delv Date:</b> {nextDeliveryDate}<br><b>New Delivery Date:</b> {FirstVisit}<br>"
+          "content": "<b>Customer:</b> {customerName}<br><b>Contract:</b> {contractNumber}<br><b>Contract Type:</b> {contractType}<br><b>Delivery Frequency:</b> {deliveryFrequency}<br><b>Delivery Product:</b> {item}<br><b>Suggested Qty:</b> {suggestedQty}<br><b>Orig Next Delv Date:</b> {futureDeliveryDates}<br>"
         };    
 
-      // map.add(clusteredLayer);
-      view.ui.add(new Legend({ view }), "bottom-left");
 
       const csvLayer = new CSVLayer({
-        url: "http://127.0.0.1:5000/contracts.csv",
-      })
+        url: "https://raw.githubusercontent.com/coleherman370/contractMapping/main/contracts.csv",
+        popupTemplate: popupInfo,
+        renderer: {
+          type: "unique-value",
+          legendOptions: {
+            title: "Delivery Frequency"
+              },
+              field: "deliveryFrequency",
+              uniqueValueInfos: [{
+                value: "Every 2 Weeks",
+                label: "Every 2 Weeks",
+                symbol: {
+                  type: "simple-marker",
+                  size: 6,
+                  color: "#e6d800",
+                  style: "solid"
+                }
+              }, {
+                value: "Every 4 Weeks",
+                label: "Every 4 Weeks",
+                symbol: {
+                  type: "simple-marker",
+                  size: 6,
+                  color: "#e60049",
+                  style: "solid"
+                }
+              }, {
+                value: "Every 8 Weeks",
+                label: "Every 8 Weeks",
+                symbol: {
+                  type: "simple-marker",
+                  size: 6,
+                  color: "#9b19f5",
+                  style: "solid"
+                }
+              }, {
+                value: "Every 12 Weeks",
+                label: "Every 12 Weeks",
+                symbol: {
+                  type: "simple-marker",
+                  size: 6,
+                  color: "#1945f5",
+                  style: "solid"
+                }
+              }, {
+                value: "Every 16 Weeks",
+                label: "Every 16 Weeks",
+                symbol: {
+                  type: "simple-marker",
+                  size: 6,
+                  color: "#19e6f5",
+                  style: "solid"
+                }
+              }, {
+                value: "Every 20 Weeks",
+                label: "Every 20 Weeks",
+                symbol: {
+                  type: "simple-marker",
+                  size: 6,
+                  color: "#20f519",
+                  style: "solid"
+                }
+              }, {
+                value: "Every 24 Weeks",
+                label: "Every 24 Weeks",
+                symbol: {
+                  type: "simple-marker",
+                  size: 6,
+                  color: "#f5ac19",
+                  style: "solid"
+                }
+              }, {
+                value: "Every 28 Weeks",
+                label: "Every 28 Weeks",
+                symbol: {
+                  type: "simple-marker",
+                  size: 6,
+                  color: "#eaf519",
+                  style: "solid"
+                }
+              }, {
+                value: "Every 48 Weeks",
+                label: "Every 48 Weeks",
+                symbol: {
+                  type: "simple-marker",
+                  size: 6,
+                  color: "#f519a8",
+                  style: "solid"
+                }
+              }]
+            }
+          })
       
       map.add(csvLayer);
+      view.ui.add(new Legend({ view }), "bottom-left");
     });
   </script>
 </head>
